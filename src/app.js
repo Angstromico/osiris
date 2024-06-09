@@ -50,7 +50,7 @@ app.get('/auth/callback',
 app.use('/users', userRoutes);
 
 // Default route
-app.get('/', (req, res) => res.send('Hello World!'));
+app.get('/', (req, res) => res.send('Pipeline Test!'));
 
 // Error handling middleware
 app.use(errorHandler);
