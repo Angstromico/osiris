@@ -34,9 +34,16 @@ const companySchema = new mongoose.Schema({
     type: mongoose.Schema.Types.ObjectId,
     ref: 'companyEconomicActivity',
     required: false
-  }]
+  }],
+  ruc: { type: String, unique: true, required: true },
+  razonSocial: { type: String, required: true },
+  correoEmpresa: { type: String, required: true, unique: true },
+  contrasena: { type: String, required: true },
+  ciudad: { type: String, required: true },
+  tamanoEmpresa: { type: Number, required: true }, // 1: Pequeña, 2: Mediana, 3: Grande, 4: Micro Empresa
+  actividadEconomica: { type: String, required: true }
 
 });
 
 
-module.exports = mongoose.model('company', companySchema);
+module.exports = mongoose.model('Company', companySchema, 'company');
