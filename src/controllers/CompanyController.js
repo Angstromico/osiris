@@ -1,52 +1,65 @@
 const express = require('express');
 const router = express.Router();
-const companyService = require('../services/companyService'); // Assuming you have a service module
+const companyService = require('../services/companyService');
 
-// Create a new company
+// Crear una nueva empresa
 router.post('/', async (req, res) => {
   try {
-    await companyService.createCompany(req, res);
+    const companyData = req.body;
+    const newCompany = await companyService.createCompany(companyData);
+    res.status(201).json(newCompany);
   } catch (error) {
     res.status(error.statusCode || 500).json({ error: error.message });
   }
 });
 
-// Read all companies
+// Obtener todas las empresas
 router.get('/', async (req, res) => {
   try {
-    await companyService.getAllCompanys(req, res);
+    const companies = await companyService.getAllCompanies();
+    res.json(companies);
   } catch (error) {
     res.status(error.statusCode || 500).json({ error: error.message });
   }
 });
 
-// Read a specific company by ID
+// Obtener una empresa específica por ID
 router.get('/:id', async (req, res) => {
   try {
-    await companyService.getCompanyById(req, res);
+    const company = await companyService.getCompanyById(req.params.id);
+    if (!company) {
+      return res.status(404).json({ error: 'Company not found' });
+    }
+    res.json(company);
   } catch (error) {
     res.status(error.statusCode || 500).json({ error: error.message });
   }
 });
 
-// Update a specific company
+// Actualizar una empresa específica
 router.put('/:id', async (req, res) => {
   try {
-    await companyService.updateCompany(req, res);
-  } catch (error) {
-    res.status(error.statusCode || 500).json({ error  : error.message });
-  }
-});
-
-// Delete a specific company
-router.delete('/:id', async (req, res) => {
-  try {
-    await companyService.deleteCompanyById(req, res);
+    const updatedCompany = await companyService.updateCompany(req.params.id, req.body);
+    if (!updatedCompany) {
+      return res.status(404).json({ error: 'Company not found' });
+    }
+    res.json(updatedCompany);
   } catch (error) {
     res.status(error.statusCode || 500).json({ error: error.message });
   }
-
 });
 
+// Eliminar una empresa específica
+router.delete('/:id', async (req, res) => {
+  try {
+    const deletedCompany = await companyService.deleteCompany(req.params.id);
+    if (!deletedCompany) {
+      return res.status(404).json({ error: 'Company not found' });
+    }
+    res.json({ message: 'Company deleted' });
+  } catch (error) {
+    res.status(error.statusCode || 500).json({ error: error.message });
+  }
+});
 
 module.exports = router;

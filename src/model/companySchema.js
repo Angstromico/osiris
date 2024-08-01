@@ -8,6 +8,7 @@ const companySchema = new mongoose.Schema({
   vNombre: { type: String, required: true },
   vContacto: { type: String },
   vDireccion: { type: String },
+  vCiudad: { type: String, required: true },
   dFechaRegistro: { type: Date, default: Date.now },
   vEmail: { type: String, required: true, unique: true },
   iso: [{ 
@@ -35,13 +36,12 @@ const companySchema = new mongoose.Schema({
     ref: 'companyEconomicActivity',
     required: false
   }],
-  ruc: { type: String, unique: true, required: true },
-  razonSocial: { type: String, required: true },
-  correoEmpresa: { type: String, required: true, unique: true },
-  contrasena: { type: String, required: true },
-  ciudad: { type: String, required: true },
+  vRuc: { type: String, unique: true, required: true },
+  vRazonSocial: { type: String, required: true },
+  vCorreoEmpresa: { type: String, required: true, unique: true },
+  vContrasena: { type: String, required: true },
   tamanoEmpresa: { type: Number, required: true }, // 1: Pequeña, 2: Mediana, 3: Grande, 4: Micro Empresa
-  actividadEconomica: { type: String, required: true }
+  vActividadEconomica: { type: String, required: true }
 
 });
 

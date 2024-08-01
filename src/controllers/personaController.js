@@ -1,47 +1,62 @@
 const express = require('express');
 const router = express.Router();
-const personaService = require('../services/personaService'); 
+const personaService = require('../services/personaService');
 
-// Create Persona route
+// Crear Persona
 router.post('/', async (req, res) => {
   try {
-    await personaService.createPersona(req, res);
+    const personaData = req.body;
+    const newPersona = await personaService.createPersona(personaData);
+    res.status(201).json(newPersona);
   } catch (error) {
     res.status(error.statusCode || 500).json({ error: error.message });
   }
 });
 
-// Get Persona by ID route
+// Obtener Persona por ID
 router.get('/:id', async (req, res) => {
   try {
-    await personaService.getPersonaById(req, res);
+    const persona = await personaService.getPersonaById(req.params.id);
+    if (!persona) {
+      return res.status(404).json({ error: 'Persona not found' });
+    }
+    res.json(persona);
   } catch (error) {
     res.status(error.statusCode || 500).json({ error: error.message });
   }
 });
 
-// Get all Personas route (be cautious with large datasets)
+// Obtener todas las Personas
 router.get('/', async (req, res) => {
   try {
-    await personaService.getAllPersonas(req, res);
+    const personas = await personaService.getAllPersonas();
+    res.json(personas);
   } catch (error) {
     res.status(error.statusCode || 500).json({ error: error.message });
   }
 });
 
-// Update Persona route
+// Actualizar Persona
 router.put('/:id', async (req, res) => {
   try {
-    await personaService.updatePersona(req, res);
+    const updatedPersona = await personaService.updatePersona(req.params.id, req.body);
+    if (!updatedPersona) {
+      return res.status(404).json({ error: 'Persona not found' });
+    }
+    res.json(updatedPersona);
   } catch (error) {
     res.status(error.statusCode || 500).json({ error: error.message });
   }
 });
 
-// Delete Persona route
+// Eliminar Persona
 router.delete('/:id', async (req, res) => {
   try {
-    await personaService.deletePersona(req, res);
+    const deletedPersona = await personaService.deletePersona(req.params.id);
+    if (!deletedPersona) {
+      return res.status(404).json({ error: 'Persona not found' });
+    }
+    res.json({ message: 'Persona deleted' });
   } catch (error) {
     res.status(error.statusCode || 500).json({ error: error.message });
   }
