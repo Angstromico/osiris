@@ -8,7 +8,7 @@ const cors = require('cors');
 
 //const auth = passport.authenticate('jwt', { session: false });
 const errorHandler = require('./middlewares/errorHandler');
-const companyController = require('./controllers/companyController'); 
+const companyController = require('./controllers/CompanyController'); 
 const cargoEmpresaController = require('./controllers/cargoEmpresaController'); 
 const areaEmpresaController = require('./controllers/areaEmpresaController'); 
 const isoController = require('./controllers/isoController'); 
