@@ -17,7 +17,7 @@ const userController = require('./controllers/userController');
 const sedeController = require('./controllers/sedeController');
 const paisController = require('./controllers/paisController');
 const personaController = require('./controllers/personaController');
-
+const trabajadorController = require('./controllers/trabajadorController');
 
 
 const app = express();
@@ -103,6 +103,7 @@ app.use('/user', userController);
 app.use('/sede', sedeController);
 app.use('/persona', personaController);
 app.use('/pais', paisController);
+app.use('/trabajador', trabajadorController);
 
 app.get('/', (req, res) => res.send('Iso Main!'));
 

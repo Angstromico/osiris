@@ -4,7 +4,11 @@ const personaSchema = new mongoose.Schema({
   iId_TipDocumento: {
     type: Number,
     required: false,
-    enum: [1, 2, 3, 4, 5],
+    enum: [1, 2, 3, 4, 5], 
+  },
+  vEmail: {
+    type: String,
+    required: true,
   },
   iId_GeneroPersona: {
     type: Number,
@@ -21,12 +25,12 @@ const personaSchema = new mongoose.Schema({
   iId_Estado: {
     type: Number,
     required: false,
-    enum: [1, 2, 3, 4],
+    enum: [1, 2, 3, 4], // Assuming IDs map to valid states
   },
   iId_EstadoCivil: {
     type: Number,
     required: false,
-    enum: [1, 2, 3, 4, 5],
+    enum: [1, 2, 3, 4, 5], // Assuming IDs map to civil states
   },
   iId_TipSegMedico: {
     type: Number,
@@ -51,27 +55,27 @@ const personaSchema = new mongoose.Schema({
   },
   vNombre: {
     type: String,
-    required: true,
+    required: false,
     maxlength: 50,
   },
   vApePaterno: {
     type: String,
-    required: true,
+    required: false,
     maxlength: 50,
   },
   vApeMaterno: {
     type: String,
     maxlength: 50,
-    required: true,
+    required: false,
   },
   vNumDocumento: {
     type: String,
-    required: true,
+    required: false,
     maxlength: 20,
   },
   vNacionalidad: {
     type: String,
-    required: true,
+    required: false,
   },
   vNumSeguroSocial: {
     type: String,
@@ -81,15 +85,19 @@ const personaSchema = new mongoose.Schema({
   vCelular: {
     type: String,
     maxlength: 15,
-    required: true,
+    required: false,
   },
   vDireccion: {
     type: String,
-    required: true,
+    required: false,
   },
   dFechaNacimiento: {
     type: Date,
-    required: true,
+    required: false,
+  },
+  dFechaIngreso: {
+    type: Date,
+    required: false,
   },
   vbFacial: {
     type: Buffer,
@@ -106,18 +114,10 @@ const personaSchema = new mongoose.Schema({
   }],
   user: {
     type: mongoose.Schema.Types.ObjectId,
-    ref: 'user',
-    required: true
+    ref: 'user', 
+    required:true
   },
-  vCorreoTrabajo: { type: String, required: true },
-  vCorreoPersonal: { type: String, required: true },
-  vDistrito: { type: String, required: true },
-  vArea: { type: String, required: true },
-  vCargo: { type: String, required: true },
-  vRolSistema: { type: String, required: true },
-  dFechaIngresoArea: { type: Date, required: true },
-  dFechaIngresoEmpresa: { type: Date, required: true },
-  vSedeTrabajo: { type: String, required: true },
+  
 });
 
 module.exports = mongoose.model('persona', personaSchema);

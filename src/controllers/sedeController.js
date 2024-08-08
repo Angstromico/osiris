@@ -1,74 +1,66 @@
 const express = require('express');
 const router = express.Router();
-const sedeService = require('../services/sedeService'); // Assuming you have an sede.service module
+const sedeService = require('../services/sedeService'); 
 
-// Create sede record
+// Crear sede
 router.post('/', async (req, res) => {
   try {
-    const sedeData = req.body; // Extract sede data from request body
-    const createdsede = await sedeService.createSede(sedeData);
-    res.status(201).json(createdsede); // Send created sede record in response
+    const sedeData = req.body; 
+    const createdSede = await sedeService.createSede(sedeData);
+    res.status(201).json(createdSede); 
   } catch (error) {
-    handleError(error, res); // Handle any errors that occur
+    res.status(500).json({ error: error.message });
   }
 });
 
-// Read sede record by ID
+// Obtener sede por ID
 router.get('/:id', async (req, res) => {
   try {
-    const sedeId = req.params.id; // Get sede ID from request parameters
+    const sedeId = req.params.id; 
     const sedeRecord = await sedeService.getSedeById(sedeId);
     if (!sedeRecord) {
-      return res.status(404).json({ message: 'sede record not found' });
+      return res.status(404).json({ message: 'Sede record not found' });
     }
-    res.json(sedeRecord); // Send sede record in response
+    res.json(sedeRecord); 
   } catch (error) {
-    handleError(error, res); // Handle any errors that occur
+    res.status(500).json({ error: error.message });
   }
 });
 
-// Update sede record
+// Obtener todas las sedes
+router.get('/', async (req, res) => {
+  try {
+    const sedeRecords = await sedeService.getAllSedes();
+    res.json(sedeRecords); 
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// Actualizar sede
 router.put('/:id', async (req, res) => {
   try {
-    const sedeId = req.params.id; // Get sede ID from request parameters
-    const sedeData = req.body; // Extract updated sede data from request body
-    const updatedsede = await sedeService.updateSede(sedeId, sedeData);
-    if (!updatedsede) {
-      return res.status(404).json({ message: 'sede record not found' });
+    const sedeId = req.params.id; 
+    const sedeData = req.body; 
+    const updatedSede = await sedeService.updateSede(sedeId, sedeData);
+    if (!updatedSede) {
+      return res.status(404).json({ message: 'Sede record not found' });
     }
-    res.json(updatedsede); // Send updated sede record in response
+    res.json(updatedSede); 
   } catch (error) {
-    handleError(error, res); // Handle any errors that occur
+    res.status(500).json({ error: error.message });
   }
 });
 
-router.get('/', async (req, res) => {
-    try {
-      const sedeRecord = await sedeService.getAllSedes();
-      if (!sedeRecord) {
-        return res.status(404).json({ message: 'sede record not found' });
-      }
-      res.json(sedeRecord); // Send sede record in response
-    } catch (error) {
-      handleError(error, res); // Handle any errors that occur
-    }
-  });
-
-// Delete sede record
+// Eliminar sede
 router.delete('/:id', async (req, res) => {
   try {
-    const sedeId = req.params.id; // Get sede ID from request parameters
+    const sedeId = req.params.id; 
     await sedeService.deleteSede(sedeId);
-    res.status(204).json(); // Send no content response on successful deletion
+    res.status(204).json(); 
   } catch (error) {
-    handleError(error, res); // Handle any errors that occur
+    res.status(500).json({ error: error.message });
   }
 });
-
-// Error handling function (example)
-function handleError(error, res) {
-  console.error(error);
-  res.status(500).json({ message: 'Internal server error' });
-}
 
 module.exports = router;

@@ -8,7 +8,7 @@ const sedeSchema = new mongoose.Schema({
   iId_Estado: {
     type: String,
     required: true,
-    enum: ['Activo', 'Inactivo'] 
+    enum: ['Activo', 'Inactivo']
   },
   vNombre: {
     type: String,
@@ -16,8 +16,8 @@ const sedeSchema = new mongoose.Schema({
   },
   vDireccion: {
     type: String,
-    required: false 
+    required: false
   }
 });
 
-module.exports = mongoose.model('sede', sedeSchema);
+module.exports = mongoose.model('Sede', sedeSchema);

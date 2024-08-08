@@ -1,58 +1,100 @@
 const Sede = require('../model/sedeSchema');
+const { MongoClient, ObjectId } = require('mongodb');
+require('dotenv').config();
 
-const createSede = async (req, res) => {
-  const newSede = new Sede(req.body);
-  try {
-    await newSede.save();
-    res.status(201).json({ message: 'Sede created successfully' });
-  } catch (error) {
-    res.status(500).json({ error: error.message });
-  }
-};
+// Definir campos requeridos para la sede
+const REQUIRED_FIELDS = ['vNombre', 'iId_Estado'];
 
-const getSedeById = async (req, res) => {
-  const SedeId = req.params.id;
-  try {
-    const Sede = await Sede.findById(SedeId);
-    if (!Sede) {
-      return res.status(404).json({ message: 'Sede not found' });
+// Función para validar campos requeridos
+const validateRequiredFields = (body) => {
+  for (const field of REQUIRED_FIELDS) {
+    if (!body[field]) {
+      return `El campo ${field} es requerido`;
     }
-    res.status(200).json(Sede);
-  } catch (error) {
-    res.status(500).json({ error: error.message });
   }
+  return null;
 };
 
-const getAllSedes = async (req, res) => {
+// Crear una nueva sede
+const createSede = async (sedeData) => {
+  const client = new MongoClient(process.env.URI, { useNewUrlParser: true, useUnifiedTopology: true });
   try {
-    const Sedes = await Sede.find();
-    res.status(200).json(Sedes);
-  } catch (error) {
-    res.status(500).json({ error: error.message });
-  }
-};
-
-const updateSede = async (req, res) => {
-  const SedeId = req.params.id;
-  const updatedSede = req.body;
-  try {
-    const Sede = await Sede.findByIdAndUpdate(SedeId, updatedSede, { new: true });
-    if (!Sede) {
-      return res.status(404).json({ message: 'Sede not found' });
+    await client.connect();
+    const validationError = validateRequiredFields(sedeData);
+    if (validationError) {
+      throw new Error(validationError);
     }
-    res.status(200).json(Sede);
+    const newSede = new Sede(sedeData);
+    const result = await client.db('isoDb').collection('sede').insertOne(newSede);
+    return result.ops[0];
   } catch (error) {
-    res.status(500).json({ error: error.message });
+    throw new Error('Error creating sede: ' + error.message);
+  } finally {
+    await client.close();
   }
 };
 
-const deleteSede = async (req, res) => {
-  const SedeId = req.params.id;
+// Obtener una sede por su ID
+const getSedeById = async (id) => {
+  const client = new MongoClient(process.env.URI, { useNewUrlParser: true, useUnifiedTopology: true });
   try {
-    await Sede.findByIdAndDelete(SedeId);
-    res.status(200).json({ message: 'Sede deleted successfully' });
+    await client.connect();
+    const sede = await client.db('isoDb').collection('sede').findOne({ _id: new ObjectId(id) });
+    return sede;
   } catch (error) {
-    res.status(500).json({ error: error.message });
+    throw new Error('Error fetching sede by ID: ' + error.message);
+  } finally {
+    await client.close();
+  }
+};
+
+// Obtener todas las sedes
+const getAllSedes = async () => {
+  const client = new MongoClient(process.env.URI, { useNewUrlParser: true, useUnifiedTopology: true });
+  try {
+    await client.connect();
+    const sedes = await client.db('isoDb').collection('sede').find({}).toArray();
+    return sedes;
+  } catch (error) {
+    throw new Error('Error fetching all sedes: ' + error.message);
+  } finally {
+    await client.close();
+  }
+};
+
+// Actualizar una sede
+const updateSede = async (id, updateData) => {
+  const client = new MongoClient(process.env.URI, { useNewUrlParser: true, useUnifiedTopology: true });
+  try {
+    await client.connect();
+    const validationError = validateRequiredFields(updateData);
+    if (validationError) {
+      throw new Error(validationError);
+    }
+    const result = await client.db('isoDb').collection('sede').findOneAndUpdate(
+      { _id: new ObjectId(id) },
+      { $set: updateData },
+      { returnOriginal: false }
+    );
+    return result.value;
+  } catch (error) {
+    throw new Error('Error updating sede: ' + error.message);
+  } finally {
+    await client.close();
+  }
+};
+
+// Eliminar una sede
+const deleteSede = async (id) => {
+  const client = new MongoClient(process.env.URI, { useNewUrlParser: true, useUnifiedTopology: true });
+  try {
+    await client.connect();
+    const result = await client.db('isoDb').collection('sede').findOneAndDelete({ _id: new ObjectId(id) });
+    return result.value;
+  } catch (error) {
+    throw new Error('Error deleting sede: ' + error.message);
+  } finally {
+    await client.close();
   }
 };
 

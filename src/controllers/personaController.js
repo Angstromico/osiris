@@ -5,11 +5,10 @@ const personaService = require('../services/personaService');
 // Crear Persona
 router.post('/', async (req, res) => {
   try {
-    const personaData = req.body;
-    const newPersona = await personaService.createPersona(personaData);
+    const newPersona = await personaService.createPersona(req.body);
     res.status(201).json(newPersona);
   } catch (error) {
-    res.status(error.statusCode || 500).json({ error: error.message });
+    res.status(400).json({ error: error.message });
   }
 });
 
@@ -22,7 +21,7 @@ router.get('/:id', async (req, res) => {
     }
     res.json(persona);
   } catch (error) {
-    res.status(error.statusCode || 500).json({ error: error.message });
+    res.status(500).json({ error: error.message });
   }
 });
 
@@ -32,7 +31,7 @@ router.get('/', async (req, res) => {
     const personas = await personaService.getAllPersonas();
     res.json(personas);
   } catch (error) {
-    res.status(error.statusCode || 500).json({ error: error.message });
+    res.status(500).json({ error: error.message });
   }
 });
 
@@ -45,7 +44,7 @@ router.put('/:id', async (req, res) => {
     }
     res.json(updatedPersona);
   } catch (error) {
-    res.status(error.statusCode || 500).json({ error: error.message });
+    res.status(400).json({ error: error.message });
   }
 });
 
@@ -58,7 +57,7 @@ router.delete('/:id', async (req, res) => {
     }
     res.json({ message: 'Persona deleted' });
   } catch (error) {
-    res.status(error.statusCode || 500).json({ error: error.message });
+    res.status(500).json({ error: error.message });
   }
 });
 
