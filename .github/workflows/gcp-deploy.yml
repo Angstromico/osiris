@@ -23,4 +23,4 @@ jobs:
       - name: Push the image to Google Container Registry
         run: docker push gcr.io/${{ secrets.GCP_PROJECT_ID }}/$TAG:${{ github.sha }}
       - name: osiris
-        run: gcloud run deploy osiris --image gcr.io/sunlit-form-430600-n9/osiris --platform managed --service osiris
+        run: gcloud run deploy osiris --image gcr.io/${{ secrets.GCP_PROJECT_ID }}/osiris --platform managed --service osiris
