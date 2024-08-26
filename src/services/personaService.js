@@ -1,32 +1,37 @@
-const Persona = require('../model/personaSchema');
 const { MongoClient, ObjectId } = require('mongodb');
-const userService = require('../services/userService');
 require('dotenv').config();
+const Persona = require('../model/personaSchema');
+const User = require('../model/userSchema');
+
+
 
 const createPersona = async (req, res) => {
-  const client = await MongoClient.connect(
-    process.env.URI
-  );
-    try {
-      await client.connect();
-      const newPerson = new Persona(req.body);
-      const coll = client.db('isoDb').collection('persona');
-      const usuario = client.db('isoDb').collection('user');
-      const result = await coll.insertOne(newPerson);
-      const newUser = ({
-       email:req.body.vEmail,
-       password:"generic1234"
+  try {
+    const { vEmail, ...personaData } = req.body;
 
-      })
-      await usuario.insertOne(newUser);
-      console.log(`New person inserted with ID: ${result.insertedId}`);
-      res.status(201).json({ message: 'Person created successfully' });
-    } catch (error) {
-      res.status(500).json({ error: error.message });
-    }finally{
-      await client.close();
+    // Validación de entrada
+    if (!vEmail) {
+      return res.status(400).json({ message: 'Email is required' });
     }
 
+    const client = await connectToMongo();
+    const coll = client.db('isoDb').collection('persona');
+
+    const newPerson = new Persona(personaData);
+    const result = await coll.insertOne(newPerson);
+
+    const newUser = {
+      email: vEmail,
+      password: "generic1234"
+    };
+    await User.create(newUser);
+
+    console.log(`New person inserted with ID: ${result.insertedId}`);
+    res.status(201).json({ message: 'Person created successfully' });
+  } catch (error) {
+    console.error('Error creating person:', error);
+    res.status(500).json({ error: error.message });
+  }
 };
 
 const getPersonaById = async (req, res) => {
