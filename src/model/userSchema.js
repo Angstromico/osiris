@@ -1,5 +1,6 @@
 const mongoose = require('mongoose');
 const bcrypt = require('bcrypt');
+
 const userSchema = new mongoose.Schema({
   email: {
     type: String,
@@ -10,7 +11,11 @@ const userSchema = new mongoose.Schema({
   password: {
     type: String,
     required: true,
-  }
+  },
+  roles: [{
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'Role'
+  }]
 });
 
 userSchema.pre('save', async function (next) {
@@ -30,7 +35,6 @@ userSchema.methods.isValidPassword = async function(password) {
 }
 
 userSchema.methods.isEmailValid = async function(email) {
-  const user = this;
   const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
   const isValidEmail = emailRegex.test(email);
 
@@ -38,4 +42,4 @@ userSchema.methods.isEmailValid = async function(email) {
 };
 
 
-module.exports = mongoose.model('user', userSchema);
+module.exports = mongoose.model('User', userSchema);
