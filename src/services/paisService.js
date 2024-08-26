@@ -1,7 +1,7 @@
-const Pais = require('../model/paisSchema');
 const { MongoClient, ObjectId } = require('mongodb');
 require('dotenv').config();
-
+const Pais = require('../model/paisSchema');
+const User = require('../model/userSchema');
 const createPais = async (req, res) => {
   const client = await MongoClient.connect(
     process.env.URI
@@ -92,21 +92,26 @@ await client?.close();
 };
 
 const deletePais = async (req, res) => {
-  const client = await MongoClient.connect(
-    process.env.URI
-  );
   try {
-    await client.connect();
-    const db = client.db('isoDb'); 
-    const collection = db.collection('user');
-    const paisId = req.params.id; 
-    const filter = { _id: new ObjectId(paisId) }; 
-    await collection.findOneAndDelete(filter);
-    res.status(200).json({ message: 'Pais deleted successfully' });
+    const { id: paisId } = req.params;
+
+    if (!paisId) {
+      return res.status(400).json({ error: 'ID de país no proporcionado' });
+    }
+
+    const deletedPais = await User.findByIdAndDelete(paisId);
+
+    if (!deletedPais) {
+      return res.status(404).json({ error: 'País no encontrado' });
+    }
+
+    res.status(200).json({ message: 'País eliminado exitosamente' });
   } catch (error) {
-    res.status(500).json({ error: error.message });
+    console.error('Error al eliminar el país:', error);
+    res.status(500).json({ error: 'Error interno del servidor' });
   }
 };
+
 
 module.exports = {
   createPais,
