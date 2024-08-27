@@ -47,21 +47,27 @@ const getUserById = async (req, res) => {
     }
 
     // Find the requesting user and populate roles
-    const requestingUser = await User.findById(userId).populate('roles');
+    const requestingUser = await User.findById(userId);
 
     if (!requestingUser) {
       return res.status(404).json({ message: 'Requesting user not found' });
     }
 
     // Check if the requesting user is admin or the same user
-    const isAdmin = requestingUser.roles.includes('admin');
+    const isAdmin = requestingUser.hasRole('admin');
     const isSameUser = requestingUser._id.equals(userId);
 
     if (!isAdmin && !isSameUser) {
       return res.status(403).json({ message: 'Access denied. Admins or the user themselves only.' });
     }
 
-    res.status(200).json(requestingUser);
+    const user = await User.findById(userId).populate('roles');
+
+    if (!user) {
+      return res.status(404).json({ message: 'Requesting user not found' });
+    }
+
+    res.status(200).json(user);
   } catch (error) {
     console.error('Error fetching user:', error);
     res.status(500).json({ error: 'Internal server error' });
@@ -79,21 +85,27 @@ const getEmail = async (req, res) => {
     }
 
     // Find the requesting user and populate roles
-    const requestingUser = await User.findOne({ email }).populate('roles');
+    const requestingUser = await User.findOne({ email });
 
     if (!requestingUser) {
       return res.status(404).json({ message: 'Requesting user not found' });
     }
 
     // Check if the requesting user is admin or the same user
-    const isAdmin = requestingUser.roles.includes('admin');
+    const isAdmin = requestingUser.hasRole('admin');
     const isSameUser = requestingUser.email === email;
 
     if (!isAdmin && !isSameUser) {
       return res.status(403).json({ message: 'Access denied. Admins or the user themselves only.' });
     }
 
-    res.status(200).json(requestingUser);
+    const user = await User.findOne({ email }).populate('roles');
+
+    if (!user) {
+      return res.status(404).json({ message: 'Requesting user not found' });
+    }
+
+    res.status(200).json(user);
   } catch (error) {
     console.error('Error fetching user:', error);
     res.status(500).json({ error: 'Internal server error' });
@@ -104,21 +116,21 @@ const getEmail = async (req, res) => {
 
 const getAllUser = async (req, res) => {
   try {
-    // Obtener el usuario que hace la solicitud
+    // Get the user making the request
     const requestingUser = await User.findById(req.userId);
 
     if (!requestingUser) {
       return res.status(404).json({ message: 'Requesting user not found' });
     }
 
-    // Validar si el usuario que hace la solicitud es administrador
+    // Validate if the user making the request is an administrator
     const isAdmin = await requestingUser.hasRole('admin');
 
     if (!isAdmin) {
       return res.status(403).json({ message: 'Access denied. Admins only.' });
     }
 
-    // Obtener todos los usuarios
+    // Get all users
     const users = await User.find({});
 
     if (!users || users.length === 0) {
@@ -149,14 +161,14 @@ const updateUser = async (req, res) => {
     }
 
     // Find the requesting user and populate roles
-    const requestingUser = await User.findById(req.userId).populate('roles');
+    const requestingUser = await User.findById(userId);
 
     if (!requestingUser) {
       return res.status(404).json({ message: 'Requesting user not found' });
     }
 
     // Check if the requesting user is admin or the same user
-    const isAdmin = requestingUser.roles.includes('admin');
+    const isAdmin = requestingUser.hasRole('admin');
     const isSameUser = requestingUser._id.equals(userId);
 
     if (!isAdmin && !isSameUser) {
@@ -193,14 +205,14 @@ const deleteUser = async (req, res) => {
     }
 
     // Find the requesting user and populate roles
-    const requestingUser = await User.findById(req.userId).populate('roles');
+    const requestingUser = await User.findById(userId);
 
     if (!requestingUser) {
       return res.status(404).json({ message: 'Requesting user not found' });
     }
 
     // Check if the requesting user is admin or the same user
-    const isAdmin = requestingUser.roles.includes('admin');
+    const isAdmin = requestingUser.hasRole('admin');
     const isSameUser = requestingUser._id.equals(userId);
 
     if (!isAdmin && !isSameUser) {
