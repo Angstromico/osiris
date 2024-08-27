@@ -18,6 +18,7 @@ const userSchema = new mongoose.Schema({
   }]
 });
 
+// Middleware to encrypt the password before saving
 userSchema.pre('save', async function (next) {
   if (!this.isModified('password')) {
     return next();
@@ -27,18 +28,44 @@ userSchema.pre('save', async function (next) {
   next();
 });
 
+// Method to validate the password
 userSchema.methods.isValidPassword = async function(password) {
-  const user = this;
-  const compare = await bcrypt.compare(password, user.password);
-
+  const compare = await bcrypt.compare(password, this.password);
   return compare;
 }
 
-userSchema.methods.isEmailValid = async function(email) {
+// Method to validate the email
+userSchema.methods.isEmailValid = function(email) {
   const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-  const isValidEmail = emailRegex.test(email);
+  return emailRegex.test(email);
+};
 
-  return isValidEmail;
+// Method to assign a role to the user
+userSchema.methods.assignRole = async function(roleId) {
+  if (!this.roles.includes(roleId)) {
+    this.roles.push(roleId);
+    await this.save();
+  }
+  return this;
+};
+
+// Method to check if the user has a specific role
+userSchema.methods.hasRole = async function(roleName) {
+  await this.populate('roles').execPopulate();
+  return this.roles.some(role => role.name === roleName);
+};
+
+// Method to remove a role from the user
+userSchema.methods.removeRole = async function(roleId) {
+  this.roles = this.roles.filter(role => !role.equals(roleId));
+  await this.save();
+  return this;
+};
+
+// Method to get all roles of the user
+userSchema.methods.getRoles = async function() {
+  await this.populate('roles').execPopulate();
+  return this.roles;
 };
 
 
