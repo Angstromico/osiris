@@ -32,7 +32,7 @@ const createUser = async (req, res) => {
     res.status(201).json({ message: 'User created successfully', id: newUser._id });
   } catch (error) {
     console.error("Error creating user:", error);
-    res.status(500).json({ error: error.message });
+    res.status(500).json({ error: 'Internal server error' });
   }
 };
 
@@ -41,24 +41,33 @@ const getUserById = async (req, res) => {
   try {
     const userId = req.params.id;
 
-    // Validación del ID
+    // ID validation
     if (!mongoose.Types.ObjectId.isValid(userId)) {
       return res.status(400).json({ message: 'Invalid user ID' });
     }
 
-    // Buscar el usuario y poblar los roles
-    const user = await User.findById(userId).populate('roles');
+    // Find the requesting user and populate roles
+    const requestingUser = await User.findById(userId).populate('roles');
 
-    if (!user) {
-      return res.status(404).json({ message: 'User not found' });
+    if (!requestingUser) {
+      return res.status(404).json({ message: 'Requesting user not found' });
     }
 
-    res.status(200).json(user);
+    // Check if the requesting user is admin or the same user
+    const isAdmin = requestingUser.roles.includes('admin');
+    const isSameUser = requestingUser._id.equals(userId);
+
+    if (!isAdmin && !isSameUser) {
+      return res.status(403).json({ message: 'Access denied. Admins or the user themselves only.' });
+    }
+
+    res.status(200).json(requestingUser);
   } catch (error) {
     console.error('Error fetching user:', error);
     res.status(500).json({ error: 'Internal server error' });
   }
 };
+
 
 
 const getEmail = async (req, res) => {
@@ -69,13 +78,22 @@ const getEmail = async (req, res) => {
       return res.status(400).json({ message: 'Email is required' });
     }
 
-    const users = await User.find({ email });
+    // Find the requesting user and populate roles
+    const requestingUser = await User.findOne({ email }).populate('roles');
 
-    if (!users || users.length === 0) {
-      return res.status(404).json({ message: 'User not found' });
+    if (!requestingUser) {
+      return res.status(404).json({ message: 'Requesting user not found' });
     }
 
-    res.status(200).json(users);
+    // Check if the requesting user is admin or the same user
+    const isAdmin = requestingUser.roles.includes('admin');
+    const isSameUser = requestingUser.email === email;
+
+    if (!isAdmin && !isSameUser) {
+      return res.status(403).json({ message: 'Access denied. Admins or the user themselves only.' });
+    }
+
+    res.status(200).json(requestingUser);
   } catch (error) {
     console.error('Error fetching user:', error);
     res.status(500).json({ error: 'Internal server error' });
@@ -83,8 +101,24 @@ const getEmail = async (req, res) => {
 };
 
 
+
 const getAllUser = async (req, res) => {
   try {
+    // Obtener el usuario que hace la solicitud
+    const requestingUser = await User.findById(req.userId);
+
+    if (!requestingUser) {
+      return res.status(404).json({ message: 'Requesting user not found' });
+    }
+
+    // Validar si el usuario que hace la solicitud es administrador
+    const isAdmin = await requestingUser.hasRole('admin');
+
+    if (!isAdmin) {
+      return res.status(403).json({ message: 'Access denied. Admins only.' });
+    }
+
+    // Obtener todos los usuarios
     const users = await User.find({});
 
     if (!users || users.length === 0) {
@@ -94,7 +128,7 @@ const getAllUser = async (req, res) => {
     res.status(200).json(users);
   } catch (err) {
     console.error('Error fetching users:', err);
-    res.status(500).json({ message: err.message || 'Error al realizar la búsqueda' });
+    res.status(500).json({ message: err.message || 'Error fetching users' });
   }
 };
 
@@ -104,16 +138,32 @@ const updateUser = async (req, res) => {
     const userId = req.params.id;
     const updatedUser = req.body;
 
-    // Validación del ID
+    // ID validation
     if (!mongoose.Types.ObjectId.isValid(userId)) {
       return res.status(400).json({ message: 'Invalid user ID' });
     }
 
-    // Validación de entrada
+    // Input validation
     if (!updatedUser || Object.keys(updatedUser).length === 0) {
       return res.status(400).json({ message: 'No data provided to update' });
     }
 
+    // Find the requesting user and populate roles
+    const requestingUser = await User.findById(req.userId).populate('roles');
+
+    if (!requestingUser) {
+      return res.status(404).json({ message: 'Requesting user not found' });
+    }
+
+    // Check if the requesting user is admin or the same user
+    const isAdmin = requestingUser.roles.includes('admin');
+    const isSameUser = requestingUser._id.equals(userId);
+
+    if (!isAdmin && !isSameUser) {
+      return res.status(403).json({ message: 'Access denied. Admins or the user themselves only.' });
+    }
+
+    // Update the user
     const user = await User.findByIdAndUpdate(
       userId,
       { $set: updatedUser },
@@ -131,15 +181,33 @@ const updateUser = async (req, res) => {
   }
 };
 
+
+
 const deleteUser = async (req, res) => {
   try {
     const userId = req.params.id;
 
-    // Validación del ID
+    // ID validation
     if (!mongoose.Types.ObjectId.isValid(userId)) {
       return res.status(400).json({ message: 'Invalid user ID' });
     }
 
+    // Find the requesting user and populate roles
+    const requestingUser = await User.findById(req.userId).populate('roles');
+
+    if (!requestingUser) {
+      return res.status(404).json({ message: 'Requesting user not found' });
+    }
+
+    // Check if the requesting user is admin or the same user
+    const isAdmin = requestingUser.roles.includes('admin');
+    const isSameUser = requestingUser._id.equals(userId);
+
+    if (!isAdmin && !isSameUser) {
+      return res.status(403).json({ message: 'Access denied. Admins or the user themselves only.' });
+    }
+
+    // Delete the user
     const user = await User.findByIdAndDelete(userId);
 
     if (!user) {
@@ -152,6 +220,7 @@ const deleteUser = async (req, res) => {
     res.status(500).json({ error: 'Internal server error' });
   }
 };
+
 
 module.exports = {
   createUser,
