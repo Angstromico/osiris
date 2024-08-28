@@ -29,7 +29,7 @@ router.get('/extintor', async (req, res) => {
 
 router.get('/tipo', async (req, res) => {
     try {
-      await extintorService.getTipoExtintorTipoExtintor(req, res);
+      await extintorService.getTipoExtintor(req, res);
     } catch (error) {
       res.status(error.statusCode || 500).json({ error: error.message });
     }
@@ -51,8 +51,6 @@ router.put('tipoextintor/:id', async (req, res) => {
     }
 });
 
-<<<<<<< Updated upstream
-=======
 router.get('extintorVencido', async(req, res) =>{
   try{
     await extintorService.listExtintorVencimiento(req, res);
@@ -61,5 +59,5 @@ router.get('extintorVencido', async(req, res) =>{
   }
 })
 
->>>>>>> Stashed changes
+
 module.exports = router;
