@@ -19,6 +19,13 @@ const {
   modificarObjetivo,
   eliminarObjetivo,
 } = require('../controllers/objetivosHooks')
+const {
+  crearObjetivoGeneral,
+  encontrarObjetivosGenerales,
+  encontrarObjetivoGeneral,
+  modificarObjetivoGeneral,
+  eliminarObjetivoGeneral,
+} = require('../controllers/objetivosGeneralesHooks')
 
 // Define routes
 router.use('/auth', authController)
@@ -45,5 +52,12 @@ router.get('/objetivosMetas', encontrarObjetivos)
 router.get('/objetivosMetas/:id', encontrarObjetivo)
 router.put('/objetivosMetas/:id', modificarObjetivo)
 router.delete('/objetivosMetas/:id', eliminarObjetivo)
+
+//Rutas Objetivos Generales
+router.post('/objetivosGenerales', crearObjetivoGeneral)
+router.get('/objetivosGenerales', encontrarObjetivosGenerales)
+router.get('/objetivosGenerales/:id', encontrarObjetivoGeneral)
+router.put('/objetivosGenerales/:id', modificarObjetivoGeneral)
+router.delete('/objetivosGenerales/:id', eliminarObjetivoGeneral)
 
 module.exports = router
